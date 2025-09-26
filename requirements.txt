@@ -1,18 +1,19 @@
-# Video Transcription Script Requirements
-# Основные зависимости для транскрибации видео
+# Video Translater Desktop Requirements
+# Основные зависимости для локальной транскрибации
 
-# PyTorch с CUDA поддержкой (для GPU ускорения)
-# Используйте эту команду для установки:
-# pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+# PyTorch устанавливается отдельно (см. README)
 
-# Если у вас нет NVIDIA GPU, используйте CPU версию:
-# pip install torch torchvision torchaudio
-
-# Основные зависимости
+# Библиотека Whisper и утилиты
 openai-whisper>=20231117
 moviepy==1.0.3
 tqdm>=4.64.0
 
-# Дополнительные зависимости (устанавливаются автоматически)
+# Десктопный интерфейс
+PyQt6>=6.5
+
+# Опционально для диаризации спикеров
+pyannote.audio>=3.1
+
+# Дополнительные зависимости, которые автоматически тянет Whisper
 numpy>=1.21.0
 requests>=2.25.0
