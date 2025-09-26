@@ -1,89 +1,84 @@
-# Video Transcription Script
+# Video Translater
 
-Транскрибация видео в текст с использованием Whisper от OpenAI.
+Инструмент командной строки для транскрибации видео и аудио с помощью моделей Whisper и формирования таблиц диалогов.
+
+## Возможности
+
+- 📂 Поддержка входных видео- и аудиофайлов.
+- 🧠 Выбор и кэширование моделей Whisper (tiny → large-v3 или автоматический подбор).
+- ⚡ Настройка предпочтительного устройства вычислений: `auto`, `gpu`, `cpu`.
+- 🗣️ Формирование диалогов по сегментам, попытка группировки по голосам (при наличии `pyannote.audio`) или разбивка на короткие цитаты.
+- 📝 Сохранение результатов и вспомогательных файлов согласно настройкам `config.json`.
 
 ## Установка
 
+1. Установите подходящую версию PyTorch (GPU или CPU):
+
+   ```bash
+   # Пример для CUDA 11.8
+   pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+
+   # Или CPU версия
+   pip install torch torchvision torchaudio
+   ```
+
+2. Установите остальные зависимости:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+   > Для режима «По голосам» требуется токен Hugging Face (`PYANNOTE_AUTH_TOKEN`) и пакет `pyannote.audio`.
+
+## Использование
+
 ```bash
-# GPU версия (рекомендуется)
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
-
-# или CPU версия
-pip install torch torchvision torchaudio
-
-# Основные зависимости
-pip install openai-whisper moviepy==1.0.3 tqdm
+python transcribe_video.py путь/к/файлу.mp4
 ```
 
-## Запуск
+Скрипт автоматически определит тип входного файла (`video` или `audio`) на основе расширения или значения `input_type` в `config.json`, выполнит распознавание и сохранит результаты в указанный каталог (по умолчанию — `./translates`).
+
+### Дополнительные параметры CLI
 
 ```bash
-python transcribe_video.py "путь/к/видео.mp4"
+python transcribe_video.py input.mp4 \
+    --model large-v2 \
+    --device auto \
+    --dialogue-mode speakers
 ```
 
-## Результат
+Доступные ключи:
 
-Создается папка `translates/` рядом со скриптом. Файлы сохраняются как `video_name.txt`.
-
-**С временными метками:**
-```
-[00:05 → 00:12] Первая фраза
-[00:13 → 00:25] Вторая фраза  
-```
-
-**Без временных меток:**
-```
-Первая фраза. Вторая фраза.
-```
+- `--model` — размер модели Whisper (`tiny`, `base`, `small`, `medium`, `large-v2`, `large-v3`, `auto`).
+- `--device` — `auto`, `cpu` или `gpu`.
+- `--dialogue-mode` — `segments`, `speakers`, `quotes`.
+- `--language` — язык распознавания (например, `ru`, `en`).
+- `--save-path` — директория для сохранения результатов.
+- `--no-timestamps` — отключить временные метки в текстовом выводе.
+- `--keep-audio` — не удалять временные аудиофайлы.
 
 ## Конфигурация
 
-Файл `config.json`:
-```json
-{
-  "save_path": "./",
-  "include_timestamps": true,
-  "use_cuda": "auto",
-  "model_size": "auto", 
-  "delete_audio": true,
-  "audio_format": "mp3",
-  "language": "russian",
-  "show_progress": true,
-  "verbose": true
-}
-```
+Файл `config.json` содержит значения по умолчанию для всех параметров. В нём можно задать:
 
-### Основные параметры
+- `save_path` — каталог для результатов;
+- `include_timestamps` — включать ли временные метки;
+- `use_cuda` — предпочтительное устройство (`auto`/`gpu`/`cpu`);
+- `model_size` — модель Whisper по умолчанию;
+- `delete_audio` — удалять ли временные аудиофайлы;
+- `audio_format` — формат временного аудио;
+- `language` — язык распознавания;
+- `input_type` — тип входного файла по умолчанию (`video` или `audio`);
+- `dialogue_mode` — режим вывода диалогов;
+- `pyannote_token` — токен для спикерной диаризации;
+- `speaker_label_prefix` — префикс названия спикеров.
 
-- `save_path` - `"./"` (папка translates) или полный путь
-- `include_timestamps` - временные метки (true/false)
-- `use_cuda` - GPU: "auto", true, false  
-- `model_size` - модель: "auto", "tiny", "base", "small", "medium", "large-v2"
-- `delete_audio` - удалять аудио после обработки
-- `language` - "russian", "english", "auto"
+Значения командной строки переопределяют настройки конфигурации.
 
-## Производительность
+## Устранение неполадок
 
-| Устройство | Модель | 5 мин видео |
-|------------|--------|-------------|
-| RTX 4070 Ti | large-v2 | ~30 сек |
-| RTX 3080 | large-v2 | ~45 сек |
-| CPU i7 | base | ~2 мин |
+- **Не удаётся загрузить модель Whisper:** убедитесь, что есть доступ в Интернет и достаточно места в `~/.cache/whisper`.
+- **Диаризация не работает:** установите `pyannote.audio` и задайте `PYANNOTE_AUTH_TOKEN`.
+- **GPU не используется:** проверьте, что установлена соответствующая версия PyTorch и драйверы CUDA.
 
-## Устранение проблем
-
-**PyTorch CUDA не найден:**
-```bash
-pip uninstall torch torchvision torchaudio
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
-```
-
-**Не хватает VRAM - уменьшите модель:**
-```json
-"model_size": "medium"
-```
-
-**Медленно - используйте меньшую модель:**
-```json
-"model_size": "tiny"
-```
+Инструмент не требует графического интерфейса и может запускаться в любой среде Python 3.10+.
