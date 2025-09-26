@@ -22,13 +22,17 @@
    pip install torch torchvision torchaudio
    ```
 
+
 2. Установите остальные зависимости:
+
 
    ```bash
    pip install -r requirements.txt
    ```
 
+
    > Для режима «По голосам» требуется токен Hugging Face (`PYANNOTE_AUTH_TOKEN`) и пакет `pyannote.audio`.
+
 
 ## Использование
 
@@ -40,11 +44,13 @@ python transcribe_video.py путь/к/файлу.mp4
 
 ### Дополнительные параметры CLI
 
+
 ```bash
 python transcribe_video.py input.mp4 \
     --model large-v2 \
     --device auto \
     --dialogue-mode speakers
+
 ```
 
 Доступные ключи:
@@ -77,8 +83,10 @@ python transcribe_video.py input.mp4 \
 
 ## Устранение неполадок
 
+
 - **Не удаётся загрузить модель Whisper:** убедитесь, что есть доступ в Интернет и достаточно места в `~/.cache/whisper`.
 - **Диаризация не работает:** установите `pyannote.audio` и задайте `PYANNOTE_AUTH_TOKEN`.
 - **GPU не используется:** проверьте, что установлена соответствующая версия PyTorch и драйверы CUDA.
 
 Инструмент не требует графического интерфейса и может запускаться в любой среде Python 3.10+.
+
