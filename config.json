@@ -1,0 +1,10 @@
+{
+  "save_path": "./",
+  "include_timestamps": true,
+  "use_cuda": "auto",
+  "model_size": "auto",
+  "delete_audio": true,
+  "audio_format": "mp3",
+  "language": "russian",
+  "verbose": true
+}

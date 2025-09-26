@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python:*)",
+      "Bash(pip uninstall:*)",
+      "Bash(pip install:*)",
+      "Bash(ffmpeg:*)",
+      "Bash(dir \"C:\\Users\\dmitr\\Downloads\\Telegram Desktop\\video_2025-08-27_17-47-34.*\")",
+      "Bash(nvidia-smi:*)"
+    ],
+    "deny": [],
+    "ask": [],
+    "additionalDirectories": [
+      "C:\\Users\\dmitr\\Downloads\\Telegram Desktop",
+      "F:\\c\\Users\\dmitr\\Downloads"
+    ]
+  }
+}
