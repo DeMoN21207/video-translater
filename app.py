@@ -1,4 +1,5 @@
 import os
+
 import sys
 from typing import List, Dict
 
@@ -324,10 +325,44 @@ class MainWindow(QMainWindow):
         else:
             normalized = value
         if normalized in ("gpu", "cuda", True):
-            return "gpu"
-        if normalized in ("cpu", False):
-            return "cpu"
-        return "auto"
+=======
+import tempfile
+from flask import Flask, render_template, request
+from werkzeug.utils import secure_filename
+
+from transcribe_video import (
+    load_config,
+    transcribe_video_with_segments,
+    prepare_dialogues,
+)
+
+app = Flask(__name__)
+
+# Настройки приложения
+app.config["SECRET_KEY"] = os.environ.get("FLASK_SECRET_KEY", "video-translater-secret")
+app.config["UPLOAD_ROOT"] = os.environ.get(
+    "UPLOAD_ROOT", os.path.join(os.path.dirname(os.path.abspath(__file__)), "uploads")
+)
+os.makedirs(app.config["UPLOAD_ROOT"], exist_ok=True)
+
+
+@app.route("/", methods=["GET", "POST"])
+def index():
+    error_message = None
+    transcript_text = None
+    dialogues = []
+    runtime_warnings = []
+
+    base_config = load_config()
+
+    def _normalize_acceleration_choice(config_value):
+        if isinstance(config_value, str):
+            normalized = config_value.lower()
+        else:
+            normalized = config_value
+
+        if normalized in ("cuda", "gpu", True):
+
 
     def pick_file(self) -> None:
         caption = "Выберите видео или аудио файл"
@@ -454,3 +489,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+

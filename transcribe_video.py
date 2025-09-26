@@ -2,7 +2,9 @@ import os
 import re
 import argparse
 import json
+
 from typing import Callable, Dict, List, Optional
+
 
 import moviepy.editor as mp
 import torch
@@ -32,6 +34,7 @@ except ImportError:  # pragma: no cover - optional dependency
 _cached_diarization_pipeline = None
 _cached_diarization_token = None
 
+
 ProgressCallback = Optional[Callable[[float, str, bool], None]]
 
 
@@ -41,6 +44,7 @@ def _notify(progress_callback: ProgressCallback, value: float, stage: str, indet
             progress_callback(value, stage, indeterminate)
         except Exception:
             pass
+
 
 def load_config():
     """
@@ -289,7 +293,9 @@ def prepare_dialogues(
     return dialogues
 
 
+
 def _transcribe_internal(media_path, config=None, progress_callback: ProgressCallback = None):
+
     """
     Общая логика транскрибации медиа-файла.
 
@@ -299,17 +305,21 @@ def _transcribe_internal(media_path, config=None, progress_callback: ProgressCal
     """
     config = _prepare_config(config)
 
+
     _notify(progress_callback, 0.0, "Подготовка…")
 
     if not os.path.exists(media_path):
         _notify(progress_callback, 0.0, "Файл не найден", False)
+
         return "Ошибка: Файл не найден.", None, []
 
     should_cleanup_audio = False
     warnings: List[str] = []
 
     try:
+
         _notify(progress_callback, 10.0, "Анализ входного файла", False)
+
         input_type = config.get("input_type", "video")
         should_cleanup_audio = config.get("delete_audio", True) and input_type != "audio"
 
@@ -328,7 +338,9 @@ def _transcribe_internal(media_path, config=None, progress_callback: ProgressCal
                 if 'audio_clip' in locals():
                     audio_clip.close()
 
+
             _notify(progress_callback, 25.0, "Аудиофайл готов к распознаванию", False)
+
         else:
             # Извлекаем аудио из видео
             if config["verbose"]:
@@ -364,9 +376,11 @@ def _transcribe_internal(media_path, config=None, progress_callback: ProgressCal
             codec = 'mp3' if audio_format == 'mp3' else None
             video.audio.write_audiofile(temp_audio_path, codec=codec, verbose=False, logger=None)
 
+
             _notify(progress_callback, 35.0, "Аудио извлечено", False)
 
         # Определяе устройство
+
         use_cuda = config["use_cuda"]
         if isinstance(use_cuda, str):
             normalized = use_cuda.lower()
@@ -409,6 +423,7 @@ def _transcribe_internal(media_path, config=None, progress_callback: ProgressCal
 
         _notify(progress_callback, 90.0, "Постобработка", False)
 
+
         diarization_segments: List[Dict] = []
         dialogue_mode = config.get("dialogue_mode", "segments")
         if dialogue_mode == "speakers":
@@ -442,7 +457,9 @@ def _transcribe_internal(media_path, config=None, progress_callback: ProgressCal
 
     except Exception as e:
         warnings.append(str(e))
+
         _notify(progress_callback, 0.0, "Произошла ошибка", False)
+
         return f"Произошла ошибка: {e}", None, warnings
     finally:
         # Закрываем видеофайл
@@ -459,6 +476,7 @@ def _transcribe_internal(media_path, config=None, progress_callback: ProgressCal
             if config["verbose"]:
                 print(f"🗑️ Аудиофайл удален: {os.path.basename(temp_audio_path)}")
 
+
     _notify(progress_callback, 100.0, "Готово", False)
 
     return text, result, warnings
@@ -470,6 +488,7 @@ def transcribe_video(video_path, config=None, progress_callback: ProgressCallbac
     """
     text, _, warnings = _transcribe_internal(video_path, config, progress_callback)
 
+
     if config and config.get("verbose") and warnings and not text.startswith("Произошла ошибка"):
         for warning in warnings:
             print(f"⚠️ {warning}")
@@ -478,12 +497,16 @@ def transcribe_video(video_path, config=None, progress_callback: ProgressCallbac
 
 
 def transcribe_video_with_segments(video_path, config=None, progress_callback: ProgressCallback = None):
+
+
     """
     Транскрибирует видео и возвращает текст вместе с сегментами диалога.
 
     :return: Кортеж (текст, список сегментов, предупреждения)
     """
+
     text, result, warnings = _transcribe_internal(video_path, config, progress_callback)
+
 
     if result and 'segments' in result:
         segments = result['segments']
