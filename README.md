@@ -20,6 +20,9 @@ pip install openai-whisper moviepy==1.0.3 tqdm
 python transcribe_video.py "путь/к/видео.mp4"
 ```
 
+> ℹ️ В проекте нет веб-интерфейса на Flask: используйте CLI-скрипт либо настольное приложение на Qt.
+
+
 ## Результат
 
 Создается папка `translates/` рядом со скриптом. Файлы сохраняются как `video_name.txt`.
