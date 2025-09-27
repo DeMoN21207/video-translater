@@ -15,6 +15,8 @@ pip install torch torchvision torchaudio
 pip install openai-whisper moviepy==1.0.3 tqdm
 ```
 
+> **Важно:** проект больше не использует Docker. Скрипт запускается напрямую в вашей локальной среде Python, поэтому никакие Dockerfile, docker-compose или связанные артефакты в репозитории не требуются.
+
 ## Запуск
 
 ```bash
