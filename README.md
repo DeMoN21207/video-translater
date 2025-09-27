@@ -14,29 +14,13 @@ pip install torch torchvision torchaudio
 # Основные зависимости
 pip install openai-whisper moviepy==1.0.3 tqdm
 ```
-
-
-> **Важно:** проект больше не использует Docker. Скрипт запускается напрямую в вашей локальной среде Python, поэтому никакие Dockerfile, docker-compose или связанные артефакты в репозитории не требуются.
-
+После установки зависимостей запустите CLI-скрипт:
 
 ```bash
 python transcribe_video.py "путь/к/видео.mp4"
 ```
 
-### Использование CLI внутри Docker
-
-```bash
-# Сборка образа
-docker build -t video-transcriber .
-
-# Транскрибация файла с монтированием папки с видео и результатом
-docker run --rm \
-  -v "$PWD:/data" \
-  video-transcriber \
-  python transcribe_video.py /data/путь/к/видео.mp4
-```
-
-> Результаты сохраняются в смонтированную директорию `/data` (по умолчанию в подпапку `translates`).
+> ℹ️ В проекте нет веб-интерфейса на Flask: используйте CLI-скрипт либо настольное приложение на Qt.
 
 ## Результат
 
@@ -112,16 +96,3 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 "model_size": "tiny"
 ```
 
-## Предзагрузка моделей Whisper в Docker
-
-По умолчанию образ ничего не скачивает заранее — нужная модель загружается при первом запуске.
-Чтобы избежать ожидания в рантайме, можно на этапе сборки указать, какие модели сохранить в кэше:
-
-```bash
-docker build -t video-transcriber \
-  --build-arg WHISPER_MODELS="small,medium" \
-  .
-```
-
-Допустимые значения: `tiny`, `base`, `small`, `medium`, `large-v1`, `large-v2`, `large-v3`.
-Чтобы полностью отключить предзагрузку, передайте `--build-arg WHISPER_MODELS=none`.
