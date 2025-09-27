@@ -6,5 +6,7 @@
   "delete_audio": true,
   "audio_format": "mp3",
   "language": "russian",
+
   "verbose": true
+
 }
