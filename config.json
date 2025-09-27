@@ -6,9 +6,7 @@
   "delete_audio": true,
   "audio_format": "mp3",
   "language": "russian",
-  "verbose": true,
-  "input_type": "video",
-  "dialogue_mode": "segments",
-  "pyannote_token": null,
-  "speaker_label_prefix": "Голос"
+
+  "verbose": true
+
 }
