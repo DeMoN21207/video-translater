@@ -15,13 +15,28 @@ pip install torch torchvision torchaudio
 pip install openai-whisper moviepy==1.0.3 tqdm
 ```
 
+
 > **Важно:** проект больше не использует Docker. Скрипт запускается напрямую в вашей локальной среде Python, поэтому никакие Dockerfile, docker-compose или связанные артефакты в репозитории не требуются.
 
-## Запуск
 
 ```bash
 python transcribe_video.py "путь/к/видео.mp4"
 ```
+
+### Использование CLI внутри Docker
+
+```bash
+# Сборка образа
+docker build -t video-transcriber .
+
+# Транскрибация файла с монтированием папки с видео и результатом
+docker run --rm \
+  -v "$PWD:/data" \
+  video-transcriber \
+  python transcribe_video.py /data/путь/к/видео.mp4
+```
+
+> Результаты сохраняются в смонтированную директорию `/data` (по умолчанию в подпапку `translates`).
 
 ## Результат
 
@@ -46,12 +61,15 @@ python transcribe_video.py "путь/к/видео.mp4"
   "save_path": "./",
   "include_timestamps": true,
   "use_cuda": "auto",
-  "model_size": "auto", 
+  "model_size": "auto",
   "delete_audio": true,
   "audio_format": "mp3",
   "language": "russian",
-  "show_progress": true,
-  "verbose": true
+  "verbose": true,
+  "input_type": "video",
+  "dialogue_mode": "segments",
+  "pyannote_token": null,
+  "speaker_label_prefix": "Голос"
 }
 ```
 
@@ -59,10 +77,14 @@ python transcribe_video.py "путь/к/видео.mp4"
 
 - `save_path` - `"./"` (папка translates) или полный путь
 - `include_timestamps` - временные метки (true/false)
-- `use_cuda` - GPU: "auto", true, false  
-- `model_size` - модель: "auto", "tiny", "base", "small", "medium", "large-v2"
+- `use_cuda` - режим ускорения: "auto", "cuda"/"gpu", "cpu"
+- `model_size` - модель: "auto", "tiny", "base", "small", "medium", "large-v1", "large-v2", "large-v3"
 - `delete_audio` - удалять аудио после обработки
 - `language` - "russian", "english", "auto"
+- `input_type` - тип входного файла: "video" или "audio"
+- `dialogue_mode` - режим вывода диалогов: "segments", "speakers", "quotes"
+- `pyannote_token` - токен Hugging Face для диаризации (можно оставить `null`, чтобы брать из окружения)
+- `speaker_label_prefix` - префикс для отображения голосов (по умолчанию «Голос»)
 
 ## Производительность
 
@@ -89,3 +111,17 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 ```json
 "model_size": "tiny"
 ```
+
+## Предзагрузка моделей Whisper в Docker
+
+По умолчанию образ ничего не скачивает заранее — нужная модель загружается при первом запуске.
+Чтобы избежать ожидания в рантайме, можно на этапе сборки указать, какие модели сохранить в кэше:
+
+```bash
+docker build -t video-transcriber \
+  --build-arg WHISPER_MODELS="small,medium" \
+  .
+```
+
+Допустимые значения: `tiny`, `base`, `small`, `medium`, `large-v1`, `large-v2`, `large-v3`.
+Чтобы полностью отключить предзагрузку, передайте `--build-arg WHISPER_MODELS=none`.
